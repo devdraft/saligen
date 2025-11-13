@@ -1,0 +1,15 @@
+{
+  "projectName": "Devdraft",
+  "podName": "Devdraft",
+  "podVersion": "0.1.0",
+  "podAuthors": "Devdraft",
+  "podSummary": "Swift SDK for Devdraft",
+  "podHomepage": "https://github.com/devdraft/devdraft-swift",
+  "podLicense": "MIT",
+  "podSource": "{\\"git\\":\\"https://github.com/devdraft/devdraft-swift.git\\",\\"tag\\":\\"0.1.0\\"}",
+  "swiftUseApiNamespace": true,
+  "useJsonEncodable": true,
+  "objcCompatible": false,
+  "responseAs": "AsyncAwait",
+  "library": "urlsession"
+}

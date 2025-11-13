@@ -1,0 +1,10 @@
+{
+  "packageName": "devdraft",
+  "projectName": "devdraft-sdk",
+  "packageVersion": "0.1.0",
+  "httpUserAgent": "devdraft-python-sdk/0.1.0",
+  "packageUrl": "https://github.com/devdraft/devdraft-python",
+  "enumPropertyNaming": "original",
+  "library": "urllib3",
+  "generateSourceCodeOnly": false
+}

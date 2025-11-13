@@ -1,0 +1,12 @@
+{
+  "invokerPackage": "Devdraft\\Devdraft",
+  "modelPackage": "Devdraft\\Devdraft\\Model",
+  "apiPackage": "Devdraft\\Devdraft\\Api",
+  "packageName": "devdraft/devdraft",
+  "gitUserId": "devdraft",
+  "gitRepoId": "devdraft-php",
+  "artifactVersion": "0.1.0",
+  "variableNamingConvention": "camelCase",
+  "phpVersion": "8.1",
+  "srcBasePath": "src"
+}

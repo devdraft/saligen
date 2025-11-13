@@ -1,0 +1,42 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Scripts should always use LF
+*.sh text eol=lf
+
+# YAML files
+*.yaml text
+*.yml text
+
+# Markdown files
+*.md text
+
+# JSON files
+*.json text
+
+# Source code
+*.ts text
+*.js text
+*.py text
+*.go text
+*.php text
+*.rs text
+*.swift text
+*.rb text
+*.java text
+*.kt text
+
+# Archives
+*.zip binary
+*.tar binary
+*.gz binary
+*.jar binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+

@@ -1,0 +1,9 @@
+{
+  "packageName": "devdraft",
+  "packageVersion": "0.1.0",
+  "library": "reqwest",
+  "useSingleRequestParameter": true,
+  "supportAsync": true,
+  "supportMultipleResponses": true,
+  "bestFitInt": true
+}

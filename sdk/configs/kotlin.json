@@ -1,0 +1,13 @@
+{
+  "groupId": "com.devdraft",
+  "artifactId": "devdraft-sdk-kotlin",
+  "artifactVersion": "0.1.0",
+  "packageName": "com.devdraft.devdraft",
+  "library": "jvm-okhttp4",
+  "dateLibrary": "java8",
+  "serializationLibrary": "gson",
+  "enumPropertyNaming": "original",
+  "requestDateConverter": "toJson",
+  "useCoroutines": true,
+  "sourceFolder": "src/main/kotlin"
+}

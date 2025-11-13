@@ -1,0 +1,567 @@
+#!/usr/bin/env bash
+
+#######################################
+# Multi-Language SDK Generator
+#
+# Usage:
+#   ./generate.sh [OPTIONS]
+#
+# Options:
+#   -l, --language LANG    Generate SDK for specific language(s) (comma-separated)
+#                          Available: typescript, python, go, php, rust, swift, ruby, java, kotlin, all
+#   -o, --openapi PATH     Path to OpenAPI spec (YAML or JSON) (default: sdk/openapi.yaml)
+#                          Supported formats: .yaml, .yml, .json
+#   -c, --configure        Force interactive configuration mode
+#   -n, --name NAME        SDK/project name (pre-fills configuration prompt)
+#   -h, --help             Show this help message
+#
+# Note: First-time setup automatically triggers configuration wizard
+#
+# Examples:
+#   ./generate.sh -o swagger.yml                     # First run: auto-configures, then generates
+#   ./generate.sh -o swagger.yml -n myapi            # First run: pre-fill SDK name
+#   ./generate.sh                                    # Subsequent runs: just generate
+#   ./generate.sh -c                                 # Force reconfiguration anytime
+#   ./generate.sh -l typescript,python               # Generate specific languages only
+#   ./generate.sh -o custom-api.yaml -l go           # Use custom spec, generate Go only
+#######################################
+
+set -e
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Default values
+OPENAPI_PATH="${OPENAPI_PATH:-sdk/openapi.yaml}"
+LANGUAGES=""
+ALL_LANGUAGES="typescript python go php rust swift ruby java kotlin"
+CONFIGURE_MODE=false
+SDK_NAME=""
+
+# Supported OpenAPI file extensions
+SUPPORTED_EXTENSIONS=("yaml" "yml" "json")
+
+# Check if configs have been customized (detect first run)
+check_first_run() {
+    # Check TypeScript config for default placeholder values
+    if [ -f "sdk/configs/typescript.json" ]; then
+        local npm_name=$(grep -o '"npmName"[[:space:]]*:[[:space:]]*"[^"]*"' sdk/configs/typescript.json | cut -d'"' -f4)
+        # If it's still "hiver" or "@yourorg/yourapi", it's likely first run
+        if [ "$npm_name" = "hiver" ] || [ "$npm_name" = "@yourorg/yourapi" ]; then
+            return 0  # First run
+        fi
+    fi
+    return 1  # Already configured
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -l|--language)
+            LANGUAGES="$2"
+            shift 2
+            ;;
+        -o|--openapi)
+            OPENAPI_PATH="$2"
+            shift 2
+            ;;
+        -c|--configure)
+            CONFIGURE_MODE=true
+            shift
+            ;;
+        -n|--name)
+            SDK_NAME="$2"
+            shift 2
+            ;;
+        -h|--help)
+            echo "Multi-Language SDK Generator"
+            echo ""
+            echo "Usage: ./generate.sh [OPTIONS]"
+            echo ""
+            echo "Options:"
+            echo "  -l, --language LANG    Generate SDK for specific language(s) (comma-separated)"
+            echo "                         Available: typescript, python, go, php, rust, swift, ruby, java, kotlin, all"
+            echo "  -o, --openapi PATH     Path to OpenAPI spec (YAML or JSON) (default: sdk/openapi.yaml)"
+            echo "                         Supported formats: .yaml, .yml, .json"
+            echo "  -c, --configure        Force interactive configuration mode"
+            echo "  -n, --name NAME        SDK/project name (pre-fills configuration prompt)"
+            echo "  -h, --help             Show this help message"
+            echo ""
+            echo "Note: First-time setup automatically triggers configuration wizard"
+            echo ""
+            echo "Examples:"
+            echo "  ./generate.sh -o swagger.yml                     # First run: auto-configures, then generates"
+            echo "  ./generate.sh -o swagger.yml -n myapi            # First run: pre-fill SDK name"
+            echo "  ./generate.sh                                    # Subsequent runs: just generate"
+            echo "  ./generate.sh -c                                 # Force reconfiguration anytime"
+            echo "  ./generate.sh -l typescript,python               # Generate specific languages only"
+            echo "  ./generate.sh -o custom-api.yaml -l go           # Use custom spec, generate Go only"
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown option $1${NC}"
+            echo "Run './generate.sh --help' for usage information"
+            exit 1
+            ;;
+    esac
+done
+
+# Auto-enable configure mode if this is the first run (configs not customized)
+if [ "$CONFIGURE_MODE" = false ]; then
+    if check_first_run; then
+        echo -e "${YELLOW}⚠ First-time setup detected! Starting configuration wizard...${NC}"
+        echo ""
+        CONFIGURE_MODE=true
+    fi
+fi
+
+# Determine which languages to generate
+if [ -z "$LANGUAGES" ] || [ "$LANGUAGES" = "all" ]; then
+    LANGUAGES_TO_GENERATE=$ALL_LANGUAGES
+else
+    LANGUAGES_TO_GENERATE=$(echo "$LANGUAGES" | tr ',' ' ')
+fi
+
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║      Multi-Language SDK Generator           ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+echo ""
+
+# Interactive Configuration Mode
+if [ "$CONFIGURE_MODE" = true ]; then
+    echo -e "${CYAN}Interactive Configuration Mode${NC}"
+    echo ""
+    
+    # Prompt helper function
+    prompt_input() {
+        local prompt_text="$1"
+        local default_value="$2"
+        local user_input
+        
+        if [ -n "$default_value" ]; then
+            echo -e "${YELLOW}$prompt_text${NC} ${GREEN}[$default_value]${NC}" >&2
+        else
+            echo -e "${YELLOW}$prompt_text${NC}" >&2
+        fi
+        
+        read -r user_input
+        
+        if [ -z "$user_input" ]; then
+            echo "$default_value"
+        else
+            echo "$user_input"
+        fi
+    }
+    
+    prompt_yes_no() {
+        local prompt_text="$1"
+        local default_value="$2"
+        local user_input
+        
+        if [ "$default_value" = "y" ]; then
+            echo -e "${YELLOW}$prompt_text${NC} ${GREEN}[Y/n]${NC}" >&2
+        else
+            echo -e "${YELLOW}$prompt_text${NC} ${GREEN}[y/N]${NC}" >&2
+        fi
+        
+        read -r user_input
+        user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
+        
+        if [ -z "$user_input" ]; then
+            echo "$default_value"
+        else
+            echo "${user_input:0:1}"
+        fi
+    }
+    
+    # Get SDK configuration
+    if [ -z "$SDK_NAME" ]; then
+        SDK_NAME=$(prompt_input "Enter your SDK/project name (lowercase, no spaces):" "myapi")
+        SDK_NAME=$(echo "$SDK_NAME" | tr '[:upper:]' '[:lower:]' | tr -d ' ')
+    fi
+    
+    ORG_NAME=$(prompt_input "Enter your organization/company name:" "MyOrg")
+    EMAIL=$(prompt_input "Enter your contact email:" "api@example.com")
+    VERSION=$(prompt_input "Enter the initial version:" "0.1.0")
+    GITHUB_USER=$(prompt_input "Enter your GitHub username/org:" "myorg")
+    WEBSITE=$(prompt_input "Enter your website (optional):" "https://example.com")
+    
+    echo ""
+    SCOPED_NPM=$(prompt_yes_no "Use scoped npm package (e.g., @org/package)?" "n")
+    if [ "$SCOPED_NPM" = "y" ]; then
+        NPM_SCOPE=$(prompt_input "Enter npm scope (without @):" "$GITHUB_USER")
+        NPM_NAME="@$NPM_SCOPE/$SDK_NAME"
+    else
+        NPM_NAME="$SDK_NAME"
+    fi
+    
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+    echo -e "${CYAN}Configuration Summary:${NC}" >&2
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}" >&2
+    echo -e "  SDK Name:      $SDK_NAME" >&2
+    echo -e "  Organization:  $ORG_NAME" >&2
+    echo -e "  Email:         $EMAIL" >&2
+    echo -e "  Version:       $VERSION" >&2
+    echo -e "  GitHub:        $GITHUB_USER" >&2
+    echo -e "  NPM Package:   $NPM_NAME" >&2
+    echo "" >&2
+    
+    CONFIRM=$(prompt_yes_no "Update configs and generate SDKs?" "y")
+    if [ "$CONFIRM" != "y" ]; then
+        echo -e "${YELLOW}Configuration cancelled${NC}" >&2
+        exit 0
+    fi
+    
+    echo ""
+    echo -e "${BLUE}Updating configuration files...${NC}"
+    
+    # Update TypeScript config
+    cat > sdk/configs/typescript.json << EOF
+{
+  "npmName": "$NPM_NAME",
+  "npmVersion": "$VERSION",
+  "supportsES6": true,
+  "withSeparateModelsAndApi": true,
+  "modelPropertyNaming": "camelCase",
+  "useSingleRequestParameter": true,
+  "usePromises": true,
+  "apiPackage": "apis",
+  "modelPackage": "models",
+  "withInterfaces": true,
+  "stringEnums": true
+}
+EOF
+    
+    # Update Python config
+    cat > sdk/configs/python.json << EOF
+{
+  "packageName": "$SDK_NAME",
+  "projectName": "${SDK_NAME}-sdk",
+  "packageVersion": "$VERSION",
+  "httpUserAgent": "${SDK_NAME}-python-sdk/$VERSION",
+  "packageUrl": "https://github.com/$GITHUB_USER/${SDK_NAME}-python",
+  "enumPropertyNaming": "original",
+  "library": "urllib3",
+  "generateSourceCodeOnly": false
+}
+EOF
+    
+    # Update Go config
+    cat > sdk/configs/go.json << EOF
+{
+  "packageName": "$SDK_NAME",
+  "packageVersion": "$VERSION",
+  "enumClassPrefix": true,
+  "isGoSubmodule": true,
+  "hideGenerationTimestamp": true,
+  "useOneOfDiscriminatorLookup": true,
+  "withGoCodegenComment": false,
+  "structPrefix": false,
+  "generateInterfaces": true
+}
+EOF
+    
+    # Update PHP config
+    ORG_PASCAL=$(echo "$ORG_NAME" | sed 's/[^a-zA-Z0-9]//g')
+    SDK_PASCAL=$(echo "$SDK_NAME" | sed 's/[^a-zA-Z0-9]//g' | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+    cat > sdk/configs/php.json << EOF
+{
+  "invokerPackage": "${ORG_PASCAL}\\\\${SDK_PASCAL}",
+  "modelPackage": "${ORG_PASCAL}\\\\${SDK_PASCAL}\\\\Model",
+  "apiPackage": "${ORG_PASCAL}\\\\${SDK_PASCAL}\\\\Api",
+  "packageName": "$(echo $GITHUB_USER | tr '[:upper:]' '[:lower:]')/${SDK_NAME}",
+  "gitUserId": "$GITHUB_USER",
+  "gitRepoId": "${SDK_NAME}-php",
+  "artifactVersion": "$VERSION",
+  "variableNamingConvention": "camelCase",
+  "phpVersion": "8.1",
+  "srcBasePath": "src"
+}
+EOF
+    
+    # Update Rust config
+    cat > sdk/configs/rust.json << EOF
+{
+  "packageName": "$SDK_NAME",
+  "packageVersion": "$VERSION",
+  "library": "reqwest",
+  "useSingleRequestParameter": true,
+  "supportAsync": true,
+  "supportMultipleResponses": true,
+  "bestFitInt": true
+}
+EOF
+    
+    # Update Swift config
+    SDK_CAPITALIZED=$(echo "$SDK_NAME" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
+    cat > sdk/configs/swift.json << EOF
+{
+  "projectName": "$SDK_CAPITALIZED",
+  "podName": "$SDK_CAPITALIZED",
+  "podVersion": "$VERSION",
+  "podAuthors": "$ORG_NAME",
+  "podSummary": "Swift SDK for $SDK_CAPITALIZED",
+  "podHomepage": "https://github.com/$GITHUB_USER/${SDK_NAME}-swift",
+  "podLicense": "MIT",
+  "podSource": "{\\\"git\\\":\\\"https://github.com/$GITHUB_USER/${SDK_NAME}-swift.git\\\",\\\"tag\\\":\\\"$VERSION\\\"}",
+  "swiftUseApiNamespace": true,
+  "useJsonEncodable": true,
+  "objcCompatible": false,
+  "responseAs": "AsyncAwait",
+  "library": "urlsession"
+}
+EOF
+    
+    # Update Ruby config
+    cat > sdk/configs/ruby.json << EOF
+{
+  "gemName": "$SDK_NAME",
+  "moduleName": "$SDK_CAPITALIZED",
+  "gemVersion": "$VERSION",
+  "gemAuthor": "$ORG_NAME",
+  "gemAuthorEmail": "$EMAIL",
+  "gemHomepage": "https://github.com/$GITHUB_USER/${SDK_NAME}-ruby",
+  "gemLicense": "MIT",
+  "gemSummary": "Ruby SDK for $SDK_CAPITALIZED",
+  "gemDescription": "Official Ruby SDK for $SDK_CAPITALIZED",
+  "library": "faraday",
+  "httpLibrary": "faraday"
+}
+EOF
+    
+    # Update Java config
+    JAVA_PACKAGE=$(echo "$GITHUB_USER" | tr '[:upper:]' '[:lower:]' | tr '-' '.')
+    cat > sdk/configs/java.json << EOF
+{
+  "groupId": "com.$JAVA_PACKAGE",
+  "artifactId": "${SDK_NAME}-sdk",
+  "artifactVersion": "$VERSION",
+  "artifactDescription": "Java SDK for $SDK_NAME",
+  "artifactUrl": "https://github.com/$GITHUB_USER/${SDK_NAME}-java",
+  "developerName": "$ORG_NAME",
+  "developerEmail": "$EMAIL",
+  "developerOrganization": "$ORG_NAME",
+  "developerOrganizationUrl": "$WEBSITE",
+  "scmConnection": "scm:git:git://github.com/$GITHUB_USER/${SDK_NAME}-java.git",
+  "scmDeveloperConnection": "scm:git:ssh://github.com:$GITHUB_USER/${SDK_NAME}-java.git",
+  "scmUrl": "https://github.com/$GITHUB_USER/${SDK_NAME}-java",
+  "licenseName": "MIT",
+  "licenseUrl": "https://opensource.org/licenses/MIT",
+  "invokerPackage": "com.$JAVA_PACKAGE.${SDK_NAME}",
+  "apiPackage": "com.$JAVA_PACKAGE.${SDK_NAME}.api",
+  "modelPackage": "com.$JAVA_PACKAGE.${SDK_NAME}.model",
+  "library": "okhttp-gson",
+  "dateLibrary": "java8",
+  "java8": true,
+  "hideGenerationTimestamp": true,
+  "serializableModel": true,
+  "useRuntimeException": true
+}
+EOF
+    
+    # Update Kotlin config
+    cat > sdk/configs/kotlin.json << EOF
+{
+  "groupId": "com.$JAVA_PACKAGE",
+  "artifactId": "${SDK_NAME}-sdk-kotlin",
+  "artifactVersion": "$VERSION",
+  "packageName": "com.$JAVA_PACKAGE.${SDK_NAME}",
+  "library": "jvm-okhttp4",
+  "dateLibrary": "java8",
+  "serializationLibrary": "gson",
+  "enumPropertyNaming": "original",
+  "requestDateConverter": "toJson",
+  "useCoroutines": true,
+  "sourceFolder": "src/main/kotlin"
+}
+EOF
+    
+    echo -e "${GREEN}✓ All configuration files updated${NC}"
+    echo ""
+fi
+
+echo -e "${YELLOW}OpenAPI Spec:${NC} $OPENAPI_PATH"
+echo -e "${YELLOW}Languages:${NC} $LANGUAGES_TO_GENERATE"
+echo ""
+
+# Check if OpenAPI spec exists
+if [ ! -f "$OPENAPI_PATH" ]; then
+    echo -e "${RED}Error: OpenAPI spec not found at $OPENAPI_PATH${NC}"
+    exit 1
+fi
+
+# Validate file extension
+EXTENSION="${OPENAPI_PATH##*.}"
+EXTENSION_VALID=false
+for ext in "${SUPPORTED_EXTENSIONS[@]}"; do
+    if [ "$EXTENSION" = "$ext" ]; then
+        EXTENSION_VALID=true
+        break
+    fi
+done
+
+if [ "$EXTENSION_VALID" = false ]; then
+    echo -e "${RED}Error: Unsupported file extension '.$EXTENSION'${NC}"
+    echo -e "${YELLOW}Supported formats: .yaml, .yml, .json${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ OpenAPI spec format: .$EXTENSION${NC}"
+
+# Check if OpenAPI Generator is installed (supports both brew and npm versions)
+OPENAPI_GENERATOR_CMD=""
+if command -v openapi-generator &> /dev/null; then
+    OPENAPI_GENERATOR_CMD="openapi-generator"
+    echo -e "${GREEN}✓ Found OpenAPI Generator (brew)${NC}"
+elif command -v openapi-generator-cli &> /dev/null; then
+    OPENAPI_GENERATOR_CMD="openapi-generator-cli"
+    echo -e "${GREEN}✓ Found OpenAPI Generator CLI (npm)${NC}"
+else
+    echo -e "${RED}Error: OpenAPI Generator not found${NC}"
+    echo ""
+    echo "Please install OpenAPI Generator:"
+    echo "  brew install openapi-generator     # macOS"
+    echo "  npm i -g @openapitools/openapi-generator-cli"
+    exit 1
+fi
+
+# Function to generate SDK for a language
+generate_sdk() {
+    local lang=$1
+    local generator=""
+    local config_file=""
+    local output_dir=""
+    
+    case $lang in
+        typescript)
+            generator="typescript-axios"
+            config_file="sdk/configs/typescript.json"
+            output_dir="sdk/generated/typescript"
+            ;;
+        python)
+            generator="python"
+            config_file="sdk/configs/python.json"
+            output_dir="sdk/generated/python"
+            ;;
+        go)
+            generator="go"
+            config_file="sdk/configs/go.json"
+            output_dir="sdk/generated/go"
+            ;;
+        php)
+            generator="php"
+            config_file="sdk/configs/php.json"
+            output_dir="sdk/generated/php"
+            ;;
+        rust)
+            generator="rust"
+            config_file="sdk/configs/rust.json"
+            output_dir="sdk/generated/rust"
+            ;;
+        swift)
+            generator="swift5"
+            config_file="sdk/configs/swift.json"
+            output_dir="sdk/generated/swift"
+            ;;
+        ruby)
+            generator="ruby"
+            config_file="sdk/configs/ruby.json"
+            output_dir="sdk/generated/ruby"
+            ;;
+        java)
+            generator="java"
+            config_file="sdk/configs/java.json"
+            output_dir="sdk/generated/java"
+            ;;
+        kotlin)
+            generator="kotlin"
+            config_file="sdk/configs/kotlin.json"
+            output_dir="sdk/generated/kotlin"
+            ;;
+        *)
+            echo -e "${RED}Error: Unknown language '$lang'${NC}"
+            return 1
+            ;;
+    esac
+    
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${GREEN}Generating $(echo $lang | tr '[:lower:]' '[:upper:]') SDK...${NC}"
+    echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    
+    # Create output directory if it doesn't exist
+    mkdir -p "$output_dir"
+    
+    # Generate SDK
+    if $OPENAPI_GENERATOR_CMD generate \
+        -i "$OPENAPI_PATH" \
+        -g "$generator" \
+        -o "$output_dir" \
+        -c "$config_file" \
+        --skip-validate-spec; then
+        
+        echo -e "${GREEN}✓ $(echo $lang | tr '[:lower:]' '[:upper:]') SDK generated successfully${NC}"
+        
+        # Copy wrapper code
+        if [ -d "sdk/wrappers/$lang" ]; then
+            echo -e "${YELLOW}  Copying wrapper code...${NC}"
+            cp -r sdk/wrappers/$lang/* "$output_dir/" 2>/dev/null || true
+            echo -e "${GREEN}  ✓ Wrapper code copied${NC}"
+        fi
+        
+        echo ""
+        return 0
+    else
+        echo -e "${RED}✗ $(echo $lang | tr '[:lower:]' '[:upper:]') SDK generation failed${NC}"
+        echo ""
+        return 1
+    fi
+}
+
+# Generate SDKs
+echo -e "${BLUE}Starting SDK generation...${NC}"
+echo ""
+
+SUCCESS_COUNT=0
+FAIL_COUNT=0
+FAILED_LANGUAGES=""
+
+for lang in $LANGUAGES_TO_GENERATE; do
+    if generate_sdk "$lang"; then
+        ((SUCCESS_COUNT++))
+    else
+        ((FAIL_COUNT++))
+        FAILED_LANGUAGES="$FAILED_LANGUAGES $lang"
+    fi
+done
+
+# Summary
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║              Generation Summary              ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+echo ""
+echo -e "${GREEN}Successful: $SUCCESS_COUNT${NC}"
+if [ $FAIL_COUNT -gt 0 ]; then
+    echo -e "${RED}Failed: $FAIL_COUNT${NC}"
+    echo -e "${RED}Failed languages:$FAILED_LANGUAGES${NC}"
+fi
+echo ""
+
+if [ $FAIL_COUNT -eq 0 ]; then
+    echo -e "${GREEN}🎉 All SDKs generated successfully!${NC}"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Review generated code in sdk/generated/"
+    echo "  2. Test the SDKs with your API"
+    echo "  3. Publish to package registries"
+    exit 0
+else
+    echo -e "${RED}⚠️  Some SDKs failed to generate${NC}"
+    exit 1
+fi
+

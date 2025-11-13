@@ -1,0 +1,47 @@
+{
+    "name": "yourorg/yourapi-sdk",
+    "description": "PHP SDK for YourAPI with production-ready features",
+    "type": "library",
+    "keywords": ["yourapi", "sdk", "api-client", "php"],
+    "homepage": "https://github.com/yourorg/yourapi-php",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "YourOrg",
+            "email": "api@yourorg.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "ext-curl": "*",
+        "ext-json": "*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.0",
+        "phpstan/phpstan": "^1.10",
+        "squizlabs/php_codesniffer": "^3.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "YourOrg\\YourAPI\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "YourOrg\\YourAPI\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "analyse": "phpstan analyse src --level=max",
+        "cs-check": "phpcs --standard=PSR12 src",
+        "cs-fix": "phpcbf --standard=PSR12 src"
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
+

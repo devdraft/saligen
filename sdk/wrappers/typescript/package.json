@@ -1,0 +1,42 @@
+{
+  "name": "@yourorg/yourapi",
+  "version": "0.1.0",
+  "description": "TypeScript SDK for YourAPI with production-ready features",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "yourapi",
+    "sdk",
+    "api-client",
+    "typescript"
+  ],
+  "author": "YourOrg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourorg/yourapi-sdk"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "axios": "^1.6.0"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=16"
+  }
+}
+

@@ -1,0 +1,11 @@
+{
+  "packageName": "devdraft",
+  "packageVersion": "0.1.0",
+  "enumClassPrefix": true,
+  "isGoSubmodule": true,
+  "hideGenerationTimestamp": true,
+  "useOneOfDiscriminatorLookup": true,
+  "withGoCodegenComment": false,
+  "structPrefix": false,
+  "generateInterfaces": true
+}

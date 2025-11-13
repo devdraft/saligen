@@ -1,0 +1,13 @@
+{
+  "gemName": "devdraft",
+  "moduleName": "Devdraft",
+  "gemVersion": "0.1.0",
+  "gemAuthor": "Devdraft",
+  "gemAuthorEmail": "engineering@devdraft.ai",
+  "gemHomepage": "https://github.com/devdraft/devdraft-ruby",
+  "gemLicense": "MIT",
+  "gemSummary": "Ruby SDK for Devdraft",
+  "gemDescription": "Official Ruby SDK for Devdraft",
+  "library": "faraday",
+  "httpLibrary": "faraday"
+}

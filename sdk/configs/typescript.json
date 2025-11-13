@@ -1,0 +1,13 @@
+{
+  "npmName": "@devdraft/devdraft",
+  "npmVersion": "0.1.0",
+  "supportsES6": true,
+  "withSeparateModelsAndApi": true,
+  "modelPropertyNaming": "camelCase",
+  "useSingleRequestParameter": true,
+  "usePromises": true,
+  "apiPackage": "apis",
+  "modelPackage": "models",
+  "withInterfaces": true,
+  "stringEnums": true
+}
