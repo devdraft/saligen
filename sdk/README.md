@@ -137,7 +137,6 @@ Update these fields in config files:
 - **Go**: `packageName`
 - **PHP**: `invokerPackage`, `packageName`
 - **Rust**: `packageName`
-- **Swift**: `projectName`, `podName`
 - **Ruby**: `gemName`, `moduleName`
 - **Java**: `groupId`, `artifactId`
 - **Kotlin**: `groupId`, `artifactId`, `packageName`
@@ -285,13 +284,6 @@ git push origin v0.1.0
 cd generated/rust
 cargo login
 cargo publish
-```
-
-#### Swift (CocoaPods)
-```bash
-cd generated/swift
-pod spec lint
-pod trunk push YourAPI.podspec
 ```
 
 #### Ruby (RubyGems)

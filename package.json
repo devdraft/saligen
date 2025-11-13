@@ -1,7 +1,7 @@
 {
   "name": "saligen",
   "version": "1.0.0",
-  "description": "Production-ready multi-language SDK generator from OpenAPI specifications. Generate TypeScript, Python, Go, PHP, Rust, Swift, Ruby, Java, and Kotlin SDKs with built-in authentication, retries, pagination, and error handling.",
+  "description": "Production-ready multi-language SDK generator from OpenAPI specifications. Generate TypeScript, Python, Go, PHP, Rust, Ruby, Java, and Kotlin SDKs with built-in authentication, retries, pagination, and error handling.",
   "main": "index.js",
   "bin": {
     "saligen": "./bin/sdk-generate.js"
@@ -22,7 +22,6 @@
     "go",
     "php",
     "rust",
-    "swift",
     "ruby",
     "java",
     "kotlin",

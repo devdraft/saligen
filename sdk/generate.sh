@@ -9,7 +9,7 @@
 #
 # Options:
 #   -l, --language LANG    Generate SDK for specific language(s) (comma-separated)
-#                          Available: typescript, python, go, php, rust, swift, ruby, java, kotlin, all
+#                          Available: typescript, python, go, php, rust, ruby, java, kotlin, all
 #   -o, --openapi PATH     Path to OpenAPI spec (YAML or JSON) (default: sdk/openapi.yaml)
 #                          Supported formats: .yaml, .yml, .json
 #   -c, --configure        Force interactive configuration mode
@@ -53,7 +53,7 @@ fi
 DEFAULT_OPENAPI_PATH="$SCRIPT_DIR/openapi.yaml"
 OPENAPI_PATH="${OPENAPI_PATH:-$DEFAULT_OPENAPI_PATH}"
 LANGUAGES=""
-ALL_LANGUAGES="typescript python go php rust swift ruby java kotlin"
+ALL_LANGUAGES="typescript python go php rust ruby java kotlin"
 CONFIGURE_MODE=false
 SDK_NAME=""
 
@@ -99,7 +99,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Options:"
             echo "  -l, --language LANG    Generate SDK for specific language(s) (comma-separated)"
-            echo "                         Available: typescript, python, go, php, rust, swift, ruby, java, kotlin, all"
+            echo "                         Available: typescript, python, go, php, rust, ruby, java, kotlin, all"
             echo "  -o, --openapi PATH     Path to OpenAPI spec (YAML or JSON) (default: sdk/openapi.yaml)"
             echo "                         Supported formats: .yaml, .yml, .json"
             echo "  -c, --configure        Force interactive configuration mode"
@@ -312,26 +312,6 @@ EOF
 }
 EOF
     
-    # Update Swift config
-    SDK_CAPITALIZED=$(echo "$SDK_NAME" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-    cat > "$SCRIPT_DIR/configs/swift.json" << EOF
-{
-  "projectName": "$SDK_CAPITALIZED",
-  "podName": "$SDK_CAPITALIZED",
-  "podVersion": "$VERSION",
-  "podAuthors": "$ORG_NAME",
-  "podSummary": "Swift SDK for $SDK_CAPITALIZED",
-  "podHomepage": "https://github.com/$GITHUB_USER/${SDK_NAME}-swift",
-  "podLicense": "MIT",
-  "podSource": "{\\\"git\\\":\\\"https://github.com/$GITHUB_USER/${SDK_NAME}-swift.git\\\",\\\"tag\\\":\\\"$VERSION\\\"}",
-  "swiftUseApiNamespace": true,
-  "useJsonEncodable": true,
-  "objcCompatible": false,
-  "responseAs": "AsyncAwait",
-  "library": "urlsession"
-}
-EOF
-    
     # Update Ruby config
     cat > "$SCRIPT_DIR/configs/ruby.json" << EOF
 {
@@ -518,11 +498,6 @@ generate_sdk() {
             generator="rust"
             config_file="$SCRIPT_DIR/configs/rust.json"
             output_dir="$SCRIPT_DIR/generated/rust"
-            ;;
-        swift)
-            generator="swift5"
-            config_file="$SCRIPT_DIR/configs/swift.json"
-            output_dir="$SCRIPT_DIR/generated/swift"
             ;;
         ruby)
             generator="ruby"

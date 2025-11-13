@@ -35,7 +35,7 @@ Saligen is a production-ready SDK generation system that creates type-safe, feat
 │                          ▼                                    │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │         Generated SDKs                                │   │
-│  │  TypeScript, Python, Go, PHP, Rust, Swift, etc.      │   │
+│  │  TypeScript, Python, Go, PHP, Rust, Ruby, etc.      │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -73,7 +73,6 @@ Language-specific JSON configuration files that control:
 - Go (`go.json`)
 - PHP (`php.json`)
 - Rust (`rust.json`)
-- Swift (`swift.json`)
 - Ruby (`ruby.json`)
 - Java (`java.json`)
 - Kotlin (`kotlin.json`)

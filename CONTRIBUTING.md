@@ -98,7 +98,6 @@ Follow the idiomatic style for each language:
 - **Go**: gofmt, golint
 - **PHP**: PSR-12
 - **Rust**: rustfmt
-- **Swift**: SwiftLint
 - **Ruby**: RuboCop
 - **Java**: Google Java Style
 - **Kotlin**: ktlint

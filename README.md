@@ -1,10 +1,10 @@
 # Multi-Language SDK Generator
 
-Production-ready SDK generation system that creates high-quality, type-safe SDKs for 9 programming languages from a single OpenAPI specification.
+Production-ready SDK generation system that creates high-quality, type-safe SDKs for 8 programming languages from a single OpenAPI specification.
 
 ## ✨ Features
 
-- **9 Language Support**: TypeScript, Python, Go, PHP, Rust, Swift, Ruby, Java, Kotlin
+- **8 Language Support**: TypeScript, Python, Go, PHP, Rust, Ruby, Java, Kotlin
 - **Production-Ready Wrappers**: Built-in auth, retries, pagination, error handling, and telemetry
 - **Automated CI/CD**: GitHub Actions workflow for continuous SDK generation and publishing
 - **Flexible Generation**: Generate all SDKs or select specific languages
@@ -57,7 +57,6 @@ cd saligen
   - Go 1.19+ for Go
   - PHP 8.1+ for PHP
   - Rust 1.70+ for Rust
-  - Swift 5.5+ for Swift
   - Ruby 3.0+ for Ruby
   - Java 11+ for Java/Kotlin
 
@@ -146,7 +145,6 @@ SDKgen/
 │   │   ├── go.json
 │   │   ├── php.json
 │   │   ├── rust.json
-│   │   ├── swift.json
 │   │   ├── ruby.json
 │   │   ├── java.json
 │   │   └── kotlin.json
@@ -156,7 +154,6 @@ SDKgen/
 │   │   ├── go/                   # Go wrapper
 │   │   ├── php/                  # PHP wrapper
 │   │   ├── rust/                 # Rust wrapper
-│   │   ├── swift/                # Swift wrapper
 │   │   ├── ruby/                 # Ruby wrapper
 │   │   ├── java/                 # Java wrapper
 │   │   └── kotlin/               # Kotlin wrapper
@@ -180,7 +177,6 @@ SDKgen/
 | Go         | go               | Context support, zero dependencies                 |
 | PHP        | php              | PSR-4, composer, modern PHP 8.1+                   |
 | Rust       | rust             | Async/await, tokio, type safety                    |
-| Swift      | swift5           | Async/await, Codable, URLSession                   |
 | Ruby       | ruby             | Enumerators, zero dependencies                     |
 | Java       | java             | Maven, OkHttp, Gson, Java 11+                      |
 | Kotlin     | kotlin           | Coroutines, data classes, modern Kotlin            |
@@ -238,7 +234,6 @@ See individual wrapper directories for language-specific documentation:
 - [Go SDK](sdk/wrappers/go/README.md)
 - [PHP SDK](sdk/wrappers/php/README.md)
 - [Rust SDK](sdk/wrappers/rust/README.md)
-- [Swift SDK](sdk/wrappers/swift/README.md)
 - [Ruby SDK](sdk/wrappers/ruby/README.md)
 - [Java SDK](sdk/wrappers/java/README.md)
 - [Kotlin SDK](sdk/wrappers/kotlin/README.md)
@@ -338,12 +333,6 @@ cd sdk/generated/php
 ```bash
 cd sdk/generated/rust
 cargo publish
-```
-
-### CocoaPods (Swift)
-```bash
-cd sdk/generated/swift
-pod trunk push YourAPI.podspec
 ```
 
 ### RubyGems
