@@ -4,11 +4,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="yourapi-sdk",
+    name="devdraft-sdk",
     version="0.1.0",
-    author="YourOrg",
-    author_email="api@yourorg.com",
-    description="Python SDK for YourAPI with production-ready features",
+    author="devdraft",
+    author_email="engineering@devdraft.ai",
+    description="Python SDK for DevDraft API with production-ready features",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/yourorg/yourapi-python",
@@ -37,7 +37,7 @@ setup(
             "ruff>=0.1.0",
         ],
     },
-    keywords="yourapi sdk api-client python",
+    keywords="devdraft devdraft-sdk sdk api-client python",
     project_urls={
         "Bug Reports": "https://github.com/yourorg/yourapi-python/issues",
         "Source": "https://github.com/yourorg/yourapi-python",

@@ -1,14 +1,14 @@
 {
-    "name": "yourorg/yourapi-sdk",
-    "description": "PHP SDK for YourAPI with production-ready features",
+    "name": "devdraft/devdraft-sdk",
+    "description": "PHP SDK for DevDraft API with production-ready features",
     "type": "library",
-    "keywords": ["yourapi", "sdk", "api-client", "php"],
+    "keywords": ["devdraft", "devdraft-sdk", "sdk", "api-client", "php"],
     "homepage": "https://github.com/yourorg/yourapi-php",
     "license": "MIT",
     "authors": [
         {
-            "name": "YourOrg",
-            "email": "api@yourorg.com"
+            "name": "devdraft",
+            "email": "engineering@devdraft.ai"
         }
     ],
     "require": {

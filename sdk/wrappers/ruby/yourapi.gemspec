@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require_relative 'lib/yourapi'
+require_relative 'lib/devdraft'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'yourapi'
-  spec.version       = YourAPI::VERSION
-  spec.authors       = ['YourOrg']
-  spec.email         = ['api@yourorg.com']
+  spec.name          = 'devdraft-sdk'
+  spec.version       = Devdraft::VERSION
+  spec.authors       = ['devdraft']
+  spec.email         = ['engineering@devdraft.ai']
 
-  spec.summary       = 'Ruby SDK for YourAPI with production-ready features'
-  spec.description   = 'Production-ready Ruby SDK for YourAPI with built-in support for authentication, retries, pagination, and error handling'
+  spec.summary       = 'Ruby SDK for DevDraft API with production-ready features'
+  spec.description   = 'Production-ready Ruby SDK for DevDraft API with built-in support for authentication, retries, pagination, and error handling'
   spec.homepage      = 'https://github.com/yourorg/yourapi-ruby'
   spec.license       = 'MIT'
   spec.required_ruby_version = '>= 2.7.0'

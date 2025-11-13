@@ -1,7 +1,7 @@
 {
-  "name": "@yourorg/yourapi",
+  "name": "@devdraft/devdraft-sdk",
   "version": "0.1.0",
-  "description": "TypeScript SDK for YourAPI with production-ready features",
+  "description": "TypeScript SDK for DevDraft API with production-ready features",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -10,16 +10,20 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "yourapi",
+    "devdraft",
+    "devdraft-sdk",
     "sdk",
     "api-client",
     "typescript"
   ],
-  "author": "YourOrg",
+  "author": "devdraft",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourorg/yourapi-sdk"
+    "url": "https://github.com/devdraft/devdraft-sdk"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "axios": "^1.6.0"

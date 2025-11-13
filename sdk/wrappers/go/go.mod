@@ -1,4 +1,4 @@
-module github.com/yourorg/yourapi-go
+module github.com/devdraft/devdraft-sdk-go
 
 go 1.21
 

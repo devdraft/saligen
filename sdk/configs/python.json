@@ -1,8 +1,8 @@
 {
-  "packageName": "devdraft",
+  "packageName": "devdraft-sdk",
   "projectName": "devdraft-sdk",
-  "packageVersion": "0.0.1",
-  "httpUserAgent": "devdraft-python-sdk/0.0.1",
+  "packageVersion": "0.1.1",
+  "httpUserAgent": "devdraft-python-sdk/0.1.1",
   "packageUrl": "https://github.com/devdraft/devdraft-python",
   "enumPropertyNaming": "original",
   "library": "urllib3",

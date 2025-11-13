@@ -96,7 +96,7 @@ function getAuthHeaders(opts: SDKOptions): Record<string, string> {
 /**
  * Main SDK client class
  */
-export class YourAPIClient {
+export class DevDraftClient {
   private readonly axiosInstance: AxiosInstance;
   private readonly opts: Required<
     Omit<SDKOptions, "apiKey" | "bearerToken" | "customHeaders">
@@ -107,7 +107,7 @@ export class YourAPIClient {
       baseUrl,
       timeoutMs = 15000,
       maxRetries = 3,
-      userAgent = "yourapi-typescript-sdk/0.1.0",
+      userAgent = "devdraft-typescript-sdk/0.1.0",
       debug = false,
       customHeaders = {},
     } = options;
@@ -187,7 +187,7 @@ export class YourAPIClient {
 
         if (this.opts.debug) {
           console.log(
-            `[YourAPI] Retrying request (attempt ${config.__retryCount}/${this.opts.maxRetries}) after ${backoffMs}ms`
+            `[DevDraft] Retrying request (attempt ${config.__retryCount}/${this.opts.maxRetries}) after ${backoffMs}ms`
           );
         }
 
@@ -202,20 +202,20 @@ export class YourAPIClient {
    */
   private setupDebugInterceptors(): void {
     this.axiosInstance.interceptors.request.use((config) => {
-      console.log(`[YourAPI] Request: ${config.method?.toUpperCase()} ${config.url}`);
+      console.log(`[DevDraft] Request: ${config.method?.toUpperCase()} ${config.url}`);
       return config;
     });
 
     this.axiosInstance.interceptors.response.use(
       (response) => {
         console.log(
-          `[YourAPI] Response: ${response.status} ${response.config.url}`
+          `[DevDraft] Response: ${response.status} ${response.config.url}`
         );
         return response;
       },
       (error) => {
         console.error(
-          `[YourAPI] Error: ${error.response?.status || "NO_STATUS"} ${
+          `[DevDraft] Error: ${error.response?.status || "NO_STATUS"} ${
             error.config?.url || "NO_URL"
           }`
         );
@@ -325,7 +325,7 @@ export class YourAPIClient {
    * 
    * @example
    * ```typescript
-   * const client = new YourAPIClient({ baseUrl: 'https://api.example.com' });
+   * const client = new DevDraftClient({ baseUrl: 'https://api.example.com' });
    * 
    * for await (const customer of client.paginateCursor('/customers')) {
    *   console.log(customer);
@@ -370,7 +370,7 @@ export class YourAPIClient {
    * 
    * @example
    * ```typescript
-   * const client = new YourAPIClient({ baseUrl: 'https://api.example.com' });
+   * const client = new DevDraftClient({ baseUrl: 'https://api.example.com' });
    * 
    * for await (const product of client.paginatePage('/products')) {
    *   console.log(product);

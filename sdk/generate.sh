@@ -380,8 +380,151 @@ EOF
     echo ""
 fi
 
+# Function to increment version (patch version)
+increment_version() {
+    local version=$1
+    local major=$(echo "$version" | cut -d. -f1)
+    local minor=$(echo "$version" | cut -d. -f2)
+    local patch=$(echo "$version" | cut -d. -f3)
+    
+    # Increment patch version
+    patch=$((patch + 1))
+    echo "$major.$minor.$patch"
+}
+
+# Function to read current version from generated SDK or config
+get_current_version() {
+    # First, try to get version from generated TypeScript package.json (most reliable)
+    local generated_pkg="$SCRIPT_DIR/generated/typescript/package.json"
+    if [ -f "$generated_pkg" ]; then
+        local version=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$generated_pkg" | cut -d'"' -f4)
+        if [ -n "$version" ]; then
+            echo "$version"
+            return 0
+        fi
+    fi
+    
+    # Fallback: try config files
+    local config_file="$SCRIPT_DIR/configs/typescript.json"
+    if [ -f "$config_file" ]; then
+        local version=$(grep -o '"npmVersion"[[:space:]]*:[[:space:]]*"[^"]*"' "$config_file" | cut -d'"' -f4)
+        if [ -n "$version" ]; then
+            echo "$version"
+            return 0
+        fi
+    fi
+    
+    # Fallback: try Python config
+    config_file="$SCRIPT_DIR/configs/python.json"
+    if [ -f "$config_file" ]; then
+        local version=$(grep -o '"packageVersion"[[:space:]]*:[[:space:]]*"[^"]*"' "$config_file" | cut -d'"' -f4)
+        if [ -n "$version" ]; then
+            echo "$version"
+            return 0
+        fi
+    fi
+    
+    # Default version if nothing found
+    echo "0.0.1"
+}
+
+# Function to update version in all config files
+update_all_versions() {
+    local new_version=$1
+    local config_dir="$SCRIPT_DIR/configs"
+    
+    echo -e "${BLUE}Incrementing version to ${CYAN}$new_version${NC}..."
+    
+    # Update TypeScript config
+    if [ -f "$config_dir/typescript.json" ]; then
+        # Use a temporary file and then replace
+        if command -v jq &> /dev/null; then
+            jq ".npmVersion = \"$new_version\"" "$config_dir/typescript.json" > "$config_dir/typescript.json.tmp" && mv "$config_dir/typescript.json.tmp" "$config_dir/typescript.json"
+        else
+            # Fallback: use sed (less reliable but works)
+            sed -i.bak "s/\"npmVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"npmVersion\": \"$new_version\"/" "$config_dir/typescript.json" && rm -f "$config_dir/typescript.json.bak"
+        fi
+    fi
+    
+    # Update Python config
+    if [ -f "$config_dir/python.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".packageVersion = \"$new_version\" | .httpUserAgent = (.httpUserAgent | split(\"/\")[0] + \"/$new_version\")" "$config_dir/python.json" > "$config_dir/python.json.tmp" && mv "$config_dir/python.json.tmp" "$config_dir/python.json"
+        else
+            sed -i.bak "s/\"packageVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"packageVersion\": \"$new_version\"/" "$config_dir/python.json" && rm -f "$config_dir/python.json.bak"
+        fi
+    fi
+    
+    # Update Go config
+    if [ -f "$config_dir/go.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".packageVersion = \"$new_version\"" "$config_dir/go.json" > "$config_dir/go.json.tmp" && mv "$config_dir/go.json.tmp" "$config_dir/go.json"
+        else
+            sed -i.bak "s/\"packageVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"packageVersion\": \"$new_version\"/" "$config_dir/go.json" && rm -f "$config_dir/go.json.bak"
+        fi
+    fi
+    
+    # Update PHP config
+    if [ -f "$config_dir/php.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".artifactVersion = \"$new_version\"" "$config_dir/php.json" > "$config_dir/php.json.tmp" && mv "$config_dir/php.json.tmp" "$config_dir/php.json"
+        else
+            sed -i.bak "s/\"artifactVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"artifactVersion\": \"$new_version\"/" "$config_dir/php.json" && rm -f "$config_dir/php.json.bak"
+        fi
+    fi
+    
+    # Update Rust config
+    if [ -f "$config_dir/rust.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".packageVersion = \"$new_version\"" "$config_dir/rust.json" > "$config_dir/rust.json.tmp" && mv "$config_dir/rust.json.tmp" "$config_dir/rust.json"
+        else
+            sed -i.bak "s/\"packageVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"packageVersion\": \"$new_version\"/" "$config_dir/rust.json" && rm -f "$config_dir/rust.json.bak"
+        fi
+    fi
+    
+    # Update Ruby config
+    if [ -f "$config_dir/ruby.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".gemVersion = \"$new_version\"" "$config_dir/ruby.json" > "$config_dir/ruby.json.tmp" && mv "$config_dir/ruby.json.tmp" "$config_dir/ruby.json"
+        else
+            sed -i.bak "s/\"gemVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"gemVersion\": \"$new_version\"/" "$config_dir/ruby.json" && rm -f "$config_dir/ruby.json.bak"
+        fi
+    fi
+    
+    # Update Java config
+    if [ -f "$config_dir/java.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".artifactVersion = \"$new_version\"" "$config_dir/java.json" > "$config_dir/java.json.tmp" && mv "$config_dir/java.json.tmp" "$config_dir/java.json"
+        else
+            sed -i.bak "s/\"artifactVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"artifactVersion\": \"$new_version\"/" "$config_dir/java.json" && rm -f "$config_dir/java.json.bak"
+        fi
+    fi
+    
+    # Update Kotlin config
+    if [ -f "$config_dir/kotlin.json" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".artifactVersion = \"$new_version\"" "$config_dir/kotlin.json" > "$config_dir/kotlin.json.tmp" && mv "$config_dir/kotlin.json.tmp" "$config_dir/kotlin.json"
+        else
+            sed -i.bak "s/\"artifactVersion\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"artifactVersion\": \"$new_version\"/" "$config_dir/kotlin.json" && rm -f "$config_dir/kotlin.json.bak"
+        fi
+    fi
+    
+    echo -e "${GREEN}✓ Version updated to $new_version in all config files${NC}"
+    echo ""
+}
+
+# Auto-increment version before generation (skip on first run/configuration)
+if [ "$CONFIGURE_MODE" = false ]; then
+    CURRENT_VERSION=$(get_current_version)
+    NEW_VERSION=$(increment_version "$CURRENT_VERSION")
+    update_all_versions "$NEW_VERSION"
+fi
+
 echo -e "${YELLOW}OpenAPI Spec:${NC} $OPENAPI_PATH"
 echo -e "${YELLOW}Languages:${NC} $LANGUAGES_TO_GENERATE"
+if [ "$CONFIGURE_MODE" = false ]; then
+    echo -e "${YELLOW}Version:${NC} $NEW_VERSION"
+fi
 echo ""
 
 # Check if OpenAPI spec exists
@@ -410,28 +553,86 @@ echo -e "${GREEN}✓ OpenAPI spec format: .$EXTENSION${NC}"
 
 # Check Java version (OpenAPI Generator requires Java 11+)
 echo -e "${BLUE}Checking Java version...${NC}"
-if ! command -v java &> /dev/null; then
-    echo -e "${RED}✗ Java is not installed${NC}"
-    echo -e "${YELLOW}OpenAPI Generator CLI requires Java 11 or higher${NC}"
-    echo -e "${YELLOW}Please install Java:${NC}"
-    echo -e "  macOS: brew install openjdk@11"
-    echo -e "  Or download from: https://adoptium.net/"
-    exit 1
+
+# Function to check Java version
+check_java_version() {
+    local java_cmd=$1
+    local version_output=$($java_cmd -version 2>&1 | head -n 1)
+    local version=$(echo "$version_output" | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+    
+    if [ -z "$version" ]; then
+        # Try alternative parsing for older Java versions
+        version=$(echo "$version_output" | awk -F '"' '{print $2}' | awk -F '.' '{print $1}')
+    fi
+    
+    echo "$version"
+}
+
+# Try to find a suitable Java version
+JAVA_CMD="java"
+JAVA_VERSION=""
+
+# First, check if JAVA_HOME is set and use it
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+    JAVA_CMD="$JAVA_HOME/bin/java"
+    JAVA_VERSION=$(check_java_version "$JAVA_CMD")
+    if [ -n "$JAVA_VERSION" ] && [ "$JAVA_VERSION" -ge 11 ]; then
+        echo -e "${GREEN}✓ Using Java $JAVA_VERSION from JAVA_HOME${NC}"
+        export JAVA_HOME
+    fi
 fi
 
-JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
-if [ -z "$JAVA_VERSION" ]; then
-    # Try alternative parsing for older Java versions
-    JAVA_VERSION=$(java -version 2>&1 | head -n 1 | awk -F '"' '{print $2}' | awk -F '.' '{print $1}')
+# If JAVA_HOME didn't work or wasn't set, try to find a newer Java
+if [ -z "$JAVA_VERSION" ] || [ "$JAVA_VERSION" -lt 11 ]; then
+    # Try Homebrew OpenJDK (common on macOS)
+    if [ -x "/opt/homebrew/opt/openjdk/bin/java" ]; then
+        JAVA_CMD="/opt/homebrew/opt/openjdk/bin/java"
+        JAVA_VERSION=$(check_java_version "$JAVA_CMD")
+        if [ -n "$JAVA_VERSION" ] && [ "$JAVA_VERSION" -ge 11 ]; then
+            export JAVA_HOME="/opt/homebrew/opt/openjdk"
+            echo -e "${GREEN}✓ Using Java $JAVA_VERSION from Homebrew${NC}"
+        fi
+    fi
 fi
 
+# If still no suitable Java, try java_home utility (macOS)
+if [ -z "$JAVA_VERSION" ] || [ "$JAVA_VERSION" -lt 11 ]; then
+    if command -v /usr/libexec/java_home &> /dev/null; then
+        # Try to find Java 11 or higher
+        for version in 25 24 23 22 21 20 19 18 17 16 15 14 13 12 11; do
+            JAVA_HOME_CANDIDATE=$(/usr/libexec/java_home -v "$version" 2>/dev/null)
+            if [ -n "$JAVA_HOME_CANDIDATE" ] && [ -x "$JAVA_HOME_CANDIDATE/bin/java" ]; then
+                JAVA_CMD="$JAVA_HOME_CANDIDATE/bin/java"
+                JAVA_VERSION=$(check_java_version "$JAVA_CMD")
+                if [ -n "$JAVA_VERSION" ] && [ "$JAVA_VERSION" -ge 11 ]; then
+                    export JAVA_HOME="$JAVA_HOME_CANDIDATE"
+                    echo -e "${GREEN}✓ Using Java $JAVA_VERSION from java_home${NC}"
+                    break
+                fi
+            fi
+        done
+    fi
+fi
+
+# Final check - use system java if nothing else found
+if [ -z "$JAVA_VERSION" ] || [ "$JAVA_VERSION" -lt 11 ]; then
+    if command -v java &> /dev/null; then
+        JAVA_CMD="java"
+        JAVA_VERSION=$(check_java_version "$JAVA_CMD")
+    fi
+fi
+
+# Validate Java version
 if [ -z "$JAVA_VERSION" ] || [ "$JAVA_VERSION" -lt 11 ]; then
     echo -e "${RED}✗ Java version $JAVA_VERSION is too old${NC}"
     echo -e "${YELLOW}OpenAPI Generator CLI requires Java 11 or higher${NC}"
-    echo -e "${YELLOW}Current version: $(java -version 2>&1 | head -n 1)${NC}"
+    if [ -n "$JAVA_VERSION" ]; then
+        echo -e "${YELLOW}Current version: $($JAVA_CMD -version 2>&1 | head -n 1)${NC}"
+    fi
     echo ""
     echo -e "${YELLOW}To install Java 11+:${NC}"
     echo -e "  macOS: brew install openjdk@11"
+    echo -e "  Or: brew install openjdk (installs latest LTS)"
     echo -e "  Then set JAVA_HOME: export JAVA_HOME=\$(/usr/libexec/java_home -v 11)"
     echo -e "  Or download from: https://adoptium.net/"
     exit 1

@@ -1,14 +1,14 @@
 [package]
-name = "yourapi"
+name = "devdraft-sdk"
 version = "0.1.0"
 edition = "2021"
-authors = ["YourOrg <api@yourorg.com>"]
-description = "Rust SDK for YourAPI with production-ready features"
+authors = ["devdraft <engineering@devdraft.ai>"]
+description = "Rust SDK for DevDraft API with production-ready features"
 license = "MIT"
-repository = "https://github.com/yourorg/yourapi-rust"
-homepage = "https://github.com/yourorg/yourapi-rust"
-documentation = "https://docs.rs/yourapi"
-keywords = ["yourapi", "sdk", "api-client", "rest"]
+repository = "https://github.com/devdraft/devdraft-rust"
+homepage = "https://github.com/devdraft/devdraft-rust"
+documentation = "https://docs.rs/devdraft-sdk"
+keywords = ["devdraft", "devdraft-sdk", "sdk", "api-client", "rest"]
 categories = ["api-bindings", "web-programming::http-client"]
 
 [dependencies]

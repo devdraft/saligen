@@ -1,6 +1,6 @@
-# YourAPI TypeScript SDK
+# DevDraft TypeScript SDK
 
-Production-ready TypeScript SDK for YourAPI with built-in support for:
+Production-ready TypeScript SDK for DevDraft API with built-in support for:
 
 - ✅ Authentication (API Key & Bearer Token)
 - ✅ Automatic retries with exponential backoff
@@ -14,19 +14,19 @@ Production-ready TypeScript SDK for YourAPI with built-in support for:
 ## Installation
 
 ```bash
-npm install @yourorg/yourapi
+npm install @devdraft/devdraft-sdk
 # or
-yarn add @yourorg/yourapi
+yarn add @devdraft/devdraft-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { YourAPIClient } from '@yourorg/yourapi';
+import { DevDraftClient } from '@devdraft/devdraft-sdk';
 
 // Initialize with API key
-const client = new YourAPIClient({
-  baseUrl: 'https://api.yourorg.com/v1',
+const client = new DevDraftClient({
+  baseUrl: 'https://api.devdraft.ai/v1',
   apiKey: 'your-api-key'
 });
 
@@ -47,8 +47,8 @@ const newCustomer = await client.post(
 ## Configuration Options
 
 ```typescript
-const client = new YourAPIClient({
-  baseUrl: 'https://api.yourorg.com/v1',  // Required: API base URL
+const client = new DevDraftClient({
+  baseUrl: 'https://api.devdraft.ai/v1',  // Required: API base URL
   apiKey: 'your-api-key',                  // Optional: API key auth
   bearerToken: 'your-token',               // Optional: Bearer token auth
   timeoutMs: 15000,                        // Optional: Request timeout (default: 15000)
@@ -103,7 +103,7 @@ const allProducts = await client.getAllPage('/products');
 ## Error Handling
 
 ```typescript
-import { APIError } from '@yourorg/yourapi';
+import { APIError } from '@devdraft/devdraft-sdk';
 
 try {
   const customer = await client.get('/customers/123');
@@ -171,12 +171,12 @@ axiosInstance.interceptors.request.use((config) => {
 const environment = process.env.NODE_ENV;
 
 const baseUrl = {
-  production: 'https://api.yourorg.com/v1',
-  staging: 'https://staging-api.yourorg.com/v1',
-  development: 'https://sandbox-api.yourorg.com/v1'
-}[environment] || 'https://sandbox-api.yourorg.com/v1';
+  production: 'https://api.devdraft.ai/v1',
+  staging: 'https://staging-api.devdraft.ai/v1',
+  development: 'https://sandbox-api.devdraft.ai/v1'
+}[environment] || 'https://sandbox-api.devdraft.ai/v1';
 
-const client = new YourAPIClient({ baseUrl, apiKey: process.env.API_KEY });
+const client = new DevDraftClient({ baseUrl, apiKey: process.env.API_KEY });
 ```
 
 ## License

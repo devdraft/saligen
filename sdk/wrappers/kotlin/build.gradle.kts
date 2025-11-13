@@ -3,7 +3,7 @@ plugins {
     `maven-publish`
 }
 
-group = "com.yourorg"
+group = "com.devdraft"
 version = "0.1.0"
 
 repositories {
@@ -49,9 +49,9 @@ publishing {
             from(components["java"])
             
             pom {
-                name.set("YourAPI Kotlin SDK")
-                description.set("Production-ready Kotlin SDK for YourAPI")
-                url.set("https://github.com/yourorg/yourapi-kotlin")
+                name.set("DevDraft Kotlin SDK")
+                description.set("Production-ready Kotlin SDK for DevDraft API")
+                url.set("https://github.com/devdraft/devdraft-kotlin")
                 
                 licenses {
                     license {
@@ -62,15 +62,15 @@ publishing {
                 
                 developers {
                     developer {
-                        name.set("YourOrg")
-                        email.set("api@yourorg.com")
+                        name.set("devdraft")
+                        email.set("engineering@devdraft.ai")
                     }
                 }
                 
                 scm {
-                    connection.set("scm:git:git://github.com/yourorg/yourapi-kotlin.git")
-                    developerConnection.set("scm:git:ssh://github.com:yourorg/yourapi-kotlin.git")
-                    url.set("https://github.com/yourorg/yourapi-kotlin")
+                    connection.set("scm:git:git://github.com/devdraft/devdraft-kotlin.git")
+                    developerConnection.set("scm:git:ssh://github.com:devdraft/devdraft-kotlin.git")
+                    url.set("https://github.com/devdraft/devdraft-kotlin")
                 }
             }
         }

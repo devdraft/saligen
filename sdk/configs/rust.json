@@ -1,6 +1,6 @@
 {
-  "packageName": "devdraft",
-  "packageVersion": "0.0.1",
+  "packageName": "devdraft-sdk",
+  "packageVersion": "0.1.1",
   "library": "reqwest",
   "useSingleRequestParameter": true,
   "supportAsync": true,
