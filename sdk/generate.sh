@@ -509,7 +509,55 @@ update_all_versions() {
         fi
     fi
     
-    echo -e "${GREEN}✓ Version updated to $new_version in all config files${NC}"
+    # Also update wrapper package.json files (they get copied over generated ones)
+    # Update TypeScript wrapper
+    local wrapper_pkg="$SCRIPT_DIR/wrappers/typescript/package.json"
+    if [ -f "$wrapper_pkg" ]; then
+        if command -v jq &> /dev/null; then
+            jq ".version = \"$new_version\"" "$wrapper_pkg" > "$wrapper_pkg.tmp" && mv "$wrapper_pkg.tmp" "$wrapper_pkg"
+        else
+            sed -i.bak "s/\"version\"[[:space:]]*:[[:space:]]*\"[^\"]*\"/\"version\": \"$new_version\"/" "$wrapper_pkg" && rm -f "$wrapper_pkg.bak"
+        fi
+    fi
+    
+    # Update Python wrapper files
+    local python_setup="$SCRIPT_DIR/wrappers/python/setup.py"
+    if [ -f "$python_setup" ]; then
+        sed -i.bak "s/version=\"[^\"]*\"/version=\"$new_version\"/" "$python_setup" && rm -f "$python_setup.bak" 2>/dev/null || true
+    fi
+    
+    local python_pyproject="$SCRIPT_DIR/wrappers/python/pyproject.toml"
+    if [ -f "$python_pyproject" ]; then
+        sed -i.bak "s/^version = \"[^\"]*\"/version = \"$new_version\"/" "$python_pyproject" && rm -f "$python_pyproject.bak" 2>/dev/null || true
+    fi
+    
+    # Update Rust wrapper
+    local rust_cargo="$SCRIPT_DIR/wrappers/rust/Cargo.toml"
+    if [ -f "$rust_cargo" ]; then
+        sed -i.bak "s/^version = \"[^\"]*\"/version = \"$new_version\"/" "$rust_cargo" && rm -f "$rust_cargo.bak" 2>/dev/null || true
+    fi
+    
+    # Update Ruby wrapper
+    local ruby_gemspec="$SCRIPT_DIR/wrappers/ruby/yourapi.gemspec"
+    if [ -f "$ruby_gemspec" ]; then
+        sed -i.bak "s/\.version[[:space:]]*=[[:space:]]*[^[:space:]]*/\.version       = '$new_version'/" "$ruby_gemspec" && rm -f "$ruby_gemspec.bak" 2>/dev/null || true
+    fi
+    
+    # Update Java wrapper
+    local java_pom="$SCRIPT_DIR/wrappers/java/pom.xml"
+    if [ -f "$java_pom" ]; then
+        sed -i.bak "s/<version>[^<]*<\/version>/<version>$new_version<\/version>/" "$java_pom" && rm -f "$java_pom.bak" 2>/dev/null || true
+        # More specific for the main version tag
+        sed -i.bak "0,/<version>[^<]*<\/version>/s/<version>[^<]*<\/version>/<version>$new_version<\/version>/" "$java_pom" && rm -f "$java_pom.bak" 2>/dev/null || true
+    fi
+    
+    # Update Kotlin wrapper
+    local kotlin_gradle="$SCRIPT_DIR/wrappers/kotlin/build.gradle.kts"
+    if [ -f "$kotlin_gradle" ]; then
+        sed -i.bak "s/^version = \"[^\"]*\"/version = \"$new_version\"/" "$kotlin_gradle" && rm -f "$kotlin_gradle.bak" 2>/dev/null || true
+    fi
+    
+    echo -e "${GREEN}✓ Version updated to $new_version in all config files and wrappers${NC}"
     echo ""
 }
 
