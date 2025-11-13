@@ -13,18 +13,76 @@ Production-ready SDK generation system that creates high-quality, type-safe SDKs
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Installation
 
-- [OpenAPI Generator CLI](https://openapi-generator.tech/docs/installation)
-- Language-specific tools (Node.js, Python, Go, etc.) for building SDKs
+**Option 1: Install from npm (Recommended)**
 
 ```bash
-# Install OpenAPI Generator
-npm install -g @openapitools/openapi-generator-cli
+# Install globally
+npm install -g saligen
 
-# Or on macOS with Homebrew
-brew install openapi-generator
+# Use it anywhere
+saligen -o swagger.yml -c
 ```
+
+**Option 2: Install locally in a project**
+
+```bash
+npm install --save-dev saligen
+
+# Use with npx
+npx saligen -o swagger.yml -c
+```
+
+**Option 3: Clone and use locally**
+
+```bash
+git clone https://github.com/sali-gen/saligen.git
+cd saligen
+./setup.sh
+./sdk/generate.sh -o swagger.yml -c
+```
+
+### Prerequisites
+
+- **Node.js 16+** (for OpenAPI Generator CLI)
+- Language-specific tools for building SDKs:
+  - Node.js 16+ for TypeScript
+  - Python 3.8+ for Python
+  - Go 1.19+ for Go
+  - PHP 8.1+ for PHP
+  - Rust 1.70+ for Rust
+  - Swift 5.5+ for Swift
+  - Ruby 3.0+ for Ruby
+  - Java 11+ for Java/Kotlin
+
+**No additional installation needed!** The OpenAPI Generator CLI is included as an npm dependency.
+
+### Installation
+
+**Option 1: Automatic Setup (Recommended)**
+```bash
+# Clone or download the repository
+cd SDKgen
+
+# Run the setup script
+./setup.sh
+```
+
+**Option 2: Manual Setup**
+```bash
+# Clone or download the repository
+cd SDKgen
+
+# Install dependencies (OpenAPI Generator CLI)
+cd sdk
+npm install
+cd ..
+```
+
+**Option 3: Let it auto-install**
+
+The generator will automatically run `npm install` if dependencies are missing when you first run it.
 
 ### First-Time Setup (Auto-Configuration)
 

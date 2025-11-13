@@ -1,0 +1,42 @@
+{
+  "name": "sdk-generator",
+  "version": "1.0.0",
+  "description": "Multi-language SDK generator from OpenAPI specifications",
+  "private": true,
+  "scripts": {
+    "generate": "./generate.sh",
+    "generate:typescript": "./generate.sh -l typescript",
+    "generate:python": "./generate.sh -l python",
+    "generate:go": "./generate.sh -l go",
+    "generate:all": "./generate.sh -l all",
+    "test": "node test-sdk.js",
+    "postinstall": "echo '✅ SDK Generator dependencies installed! Run: npm run generate'"
+  },
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.13.4"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "openapi",
+    "sdk",
+    "generator",
+    "api",
+    "client",
+    "typescript",
+    "python",
+    "go",
+    "php",
+    "rust",
+    "swift",
+    "ruby",
+    "java",
+    "kotlin"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourorg/sdk-generator"
+  }
+}
+

@@ -1,0 +1,62 @@
+{
+  "name": "saligen",
+  "version": "1.0.0",
+  "description": "Production-ready multi-language SDK generator from OpenAPI specifications. Generate TypeScript, Python, Go, PHP, Rust, Swift, Ruby, Java, and Kotlin SDKs with built-in authentication, retries, pagination, and error handling.",
+  "main": "index.js",
+  "bin": {
+    "saligen": "./bin/sdk-generate.js"
+  },
+  "scripts": {
+    "prepublishOnly": "npm run test",
+    "test": "echo 'No tests specified' && exit 0",
+    "postinstall": "cd sdk && npm install"
+  },
+  "keywords": [
+    "openapi",
+    "openapi-generator",
+    "sdk",
+    "sdk-generator",
+    "api-client",
+    "typescript",
+    "python",
+    "go",
+    "php",
+    "rust",
+    "swift",
+    "ruby",
+    "java",
+    "kotlin",
+    "code-generation",
+    "api",
+    "swagger",
+    "rest-api",
+    "client-generator",
+    "saligen"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sali-gen/saligen"
+  },
+  "bugs": {
+    "url": "https://github.com/sali-gen/saligen/issues"
+  },
+  "homepage": "https://github.com/sali-gen/saligen#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "files": [
+    "bin/",
+    "sdk/",
+    "LICENSE",
+    "README.md",
+    "TESTING.md",
+    "ARCHITECTURE.md",
+    ".nvmrc",
+    ".prettierrc",
+    ".eslintrc.json"
+  ],
+  "preferGlobal": false
+}
+

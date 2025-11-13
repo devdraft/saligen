@@ -5,6 +5,7 @@
 #
 # Usage:
 #   ./generate.sh [OPTIONS]
+#   saligen [OPTIONS]  (when installed via npm)
 #
 # Options:
 #   -l, --language LANG    Generate SDK for specific language(s) (comma-separated)
@@ -36,8 +37,21 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
+# Detect if running from npm package installation
+# If SDKGEN_PACKAGE_DIR is set, we're running from npm install
+if [ -n "$SDKGEN_PACKAGE_DIR" ]; then
+    # Running from npm package
+    SCRIPT_DIR="$SDKGEN_PACKAGE_DIR/sdk"
+    BASE_DIR="$SDKGEN_PACKAGE_DIR"
+else
+    # Running from local development
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    BASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+fi
+
 # Default values
-OPENAPI_PATH="${OPENAPI_PATH:-sdk/openapi.yaml}"
+DEFAULT_OPENAPI_PATH="$SCRIPT_DIR/openapi.yaml"
+OPENAPI_PATH="${OPENAPI_PATH:-$DEFAULT_OPENAPI_PATH}"
 LANGUAGES=""
 ALL_LANGUAGES="typescript python go php rust swift ruby java kotlin"
 CONFIGURE_MODE=false
@@ -49,8 +63,8 @@ SUPPORTED_EXTENSIONS=("yaml" "yml" "json")
 # Check if configs have been customized (detect first run)
 check_first_run() {
     # Check TypeScript config for default placeholder values
-    if [ -f "sdk/configs/typescript.json" ]; then
-        local npm_name=$(grep -o '"npmName"[[:space:]]*:[[:space:]]*"[^"]*"' sdk/configs/typescript.json | cut -d'"' -f4)
+    if [ -f "$SCRIPT_DIR/configs/typescript.json" ]; then
+        local npm_name=$(grep -o '"npmName"[[:space:]]*:[[:space:]]*"[^"]*"' "$SCRIPT_DIR/configs/typescript.json" | cut -d'"' -f4)
         # If it's still "hiver" or "@yourorg/yourapi", it's likely first run
         if [ "$npm_name" = "hiver" ] || [ "$npm_name" = "@yourorg/yourapi" ]; then
             return 0  # First run
@@ -222,7 +236,7 @@ if [ "$CONFIGURE_MODE" = true ]; then
     echo -e "${BLUE}Updating configuration files...${NC}"
     
     # Update TypeScript config
-    cat > sdk/configs/typescript.json << EOF
+    cat > "$SCRIPT_DIR/configs/typescript.json" << EOF
 {
   "npmName": "$NPM_NAME",
   "npmVersion": "$VERSION",
@@ -239,7 +253,7 @@ if [ "$CONFIGURE_MODE" = true ]; then
 EOF
     
     # Update Python config
-    cat > sdk/configs/python.json << EOF
+    cat > "$SCRIPT_DIR/configs/python.json" << EOF
 {
   "packageName": "$SDK_NAME",
   "projectName": "${SDK_NAME}-sdk",
@@ -253,7 +267,7 @@ EOF
 EOF
     
     # Update Go config
-    cat > sdk/configs/go.json << EOF
+    cat > "$SCRIPT_DIR/configs/go.json" << EOF
 {
   "packageName": "$SDK_NAME",
   "packageVersion": "$VERSION",
@@ -270,7 +284,7 @@ EOF
     # Update PHP config
     ORG_PASCAL=$(echo "$ORG_NAME" | sed 's/[^a-zA-Z0-9]//g')
     SDK_PASCAL=$(echo "$SDK_NAME" | sed 's/[^a-zA-Z0-9]//g' | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-    cat > sdk/configs/php.json << EOF
+    cat > "$SCRIPT_DIR/configs/php.json" << EOF
 {
   "invokerPackage": "${ORG_PASCAL}\\\\${SDK_PASCAL}",
   "modelPackage": "${ORG_PASCAL}\\\\${SDK_PASCAL}\\\\Model",
@@ -286,7 +300,7 @@ EOF
 EOF
     
     # Update Rust config
-    cat > sdk/configs/rust.json << EOF
+    cat > "$SCRIPT_DIR/configs/rust.json" << EOF
 {
   "packageName": "$SDK_NAME",
   "packageVersion": "$VERSION",
@@ -300,7 +314,7 @@ EOF
     
     # Update Swift config
     SDK_CAPITALIZED=$(echo "$SDK_NAME" | awk '{print toupper(substr($0,1,1)) tolower(substr($0,2))}')
-    cat > sdk/configs/swift.json << EOF
+    cat > "$SCRIPT_DIR/configs/swift.json" << EOF
 {
   "projectName": "$SDK_CAPITALIZED",
   "podName": "$SDK_CAPITALIZED",
@@ -319,7 +333,7 @@ EOF
 EOF
     
     # Update Ruby config
-    cat > sdk/configs/ruby.json << EOF
+    cat > "$SCRIPT_DIR/configs/ruby.json" << EOF
 {
   "gemName": "$SDK_NAME",
   "moduleName": "$SDK_CAPITALIZED",
@@ -337,7 +351,7 @@ EOF
     
     # Update Java config
     JAVA_PACKAGE=$(echo "$GITHUB_USER" | tr '[:upper:]' '[:lower:]' | tr '-' '.')
-    cat > sdk/configs/java.json << EOF
+    cat > "$SCRIPT_DIR/configs/java.json" << EOF
 {
   "groupId": "com.$JAVA_PACKAGE",
   "artifactId": "${SDK_NAME}-sdk",
@@ -366,7 +380,7 @@ EOF
 EOF
     
     # Update Kotlin config
-    cat > sdk/configs/kotlin.json << EOF
+    cat > "$SCRIPT_DIR/configs/kotlin.json" << EOF
 {
   "groupId": "com.$JAVA_PACKAGE",
   "artifactId": "${SDK_NAME}-sdk-kotlin",
@@ -414,22 +428,28 @@ fi
 
 echo -e "${GREEN}✓ OpenAPI spec format: .$EXTENSION${NC}"
 
-# Check if OpenAPI Generator is installed (supports both brew and npm versions)
-OPENAPI_GENERATOR_CMD=""
-if command -v openapi-generator &> /dev/null; then
-    OPENAPI_GENERATOR_CMD="openapi-generator"
-    echo -e "${GREEN}✓ Found OpenAPI Generator (brew)${NC}"
-elif command -v openapi-generator-cli &> /dev/null; then
-    OPENAPI_GENERATOR_CMD="openapi-generator-cli"
-    echo -e "${GREEN}✓ Found OpenAPI Generator CLI (npm)${NC}"
-else
-    echo -e "${RED}Error: OpenAPI Generator not found${NC}"
+# Check if OpenAPI Generator CLI is available via npm
+echo -e "${BLUE}Checking OpenAPI Generator CLI...${NC}"
+
+# Check if node_modules exists (dependencies installed)
+if [ ! -d "$SCRIPT_DIR/node_modules/@openapitools/openapi-generator-cli" ]; then
+    echo -e "${YELLOW}⚠ OpenAPI Generator CLI not found in node_modules${NC}"
+    echo -e "${BLUE}Installing dependencies...${NC}"
     echo ""
-    echo "Please install OpenAPI Generator:"
-    echo "  brew install openapi-generator     # macOS"
-    echo "  npm i -g @openapitools/openapi-generator-cli"
-    exit 1
+    
+    cd "$SCRIPT_DIR"
+    npm install
+    cd "$BASE_DIR"
+    
+    echo ""
+    echo -e "${GREEN}✓ Dependencies installed${NC}"
+else
+    echo -e "${GREEN}✓ OpenAPI Generator CLI ready${NC}"
 fi
+
+# Use npx to run openapi-generator-cli from local node_modules
+OPENAPI_GENERATOR_CMD="npx --prefix $SCRIPT_DIR @openapitools/openapi-generator-cli"
+echo ""
 
 # Function to generate SDK for a language
 generate_sdk() {
@@ -441,48 +461,48 @@ generate_sdk() {
     case $lang in
         typescript)
             generator="typescript-axios"
-            config_file="sdk/configs/typescript.json"
-            output_dir="sdk/generated/typescript"
+            config_file="$SCRIPT_DIR/configs/typescript.json"
+            output_dir="$SCRIPT_DIR/generated/typescript"
             ;;
         python)
             generator="python"
-            config_file="sdk/configs/python.json"
-            output_dir="sdk/generated/python"
+            config_file="$SCRIPT_DIR/configs/python.json"
+            output_dir="$SCRIPT_DIR/generated/python"
             ;;
         go)
             generator="go"
-            config_file="sdk/configs/go.json"
-            output_dir="sdk/generated/go"
+            config_file="$SCRIPT_DIR/configs/go.json"
+            output_dir="$SCRIPT_DIR/generated/go"
             ;;
         php)
             generator="php"
-            config_file="sdk/configs/php.json"
-            output_dir="sdk/generated/php"
+            config_file="$SCRIPT_DIR/configs/php.json"
+            output_dir="$SCRIPT_DIR/generated/php"
             ;;
         rust)
             generator="rust"
-            config_file="sdk/configs/rust.json"
-            output_dir="sdk/generated/rust"
+            config_file="$SCRIPT_DIR/configs/rust.json"
+            output_dir="$SCRIPT_DIR/generated/rust"
             ;;
         swift)
             generator="swift5"
-            config_file="sdk/configs/swift.json"
-            output_dir="sdk/generated/swift"
+            config_file="$SCRIPT_DIR/configs/swift.json"
+            output_dir="$SCRIPT_DIR/generated/swift"
             ;;
         ruby)
             generator="ruby"
-            config_file="sdk/configs/ruby.json"
-            output_dir="sdk/generated/ruby"
+            config_file="$SCRIPT_DIR/configs/ruby.json"
+            output_dir="$SCRIPT_DIR/generated/ruby"
             ;;
         java)
             generator="java"
-            config_file="sdk/configs/java.json"
-            output_dir="sdk/generated/java"
+            config_file="$SCRIPT_DIR/configs/java.json"
+            output_dir="$SCRIPT_DIR/generated/java"
             ;;
         kotlin)
             generator="kotlin"
-            config_file="sdk/configs/kotlin.json"
-            output_dir="sdk/generated/kotlin"
+            config_file="$SCRIPT_DIR/configs/kotlin.json"
+            output_dir="$SCRIPT_DIR/generated/kotlin"
             ;;
         *)
             echo -e "${RED}Error: Unknown language '$lang'${NC}"
@@ -508,9 +528,9 @@ generate_sdk() {
         echo -e "${GREEN}✓ $(echo $lang | tr '[:lower:]' '[:upper:]') SDK generated successfully${NC}"
         
         # Copy wrapper code
-        if [ -d "sdk/wrappers/$lang" ]; then
+        if [ -d "$SCRIPT_DIR/wrappers/$lang" ]; then
             echo -e "${YELLOW}  Copying wrapper code...${NC}"
-            cp -r sdk/wrappers/$lang/* "$output_dir/" 2>/dev/null || true
+            cp -r "$SCRIPT_DIR/wrappers/$lang"/* "$output_dir/" 2>/dev/null || true
             echo -e "${GREEN}  ✓ Wrapper code copied${NC}"
         fi
         

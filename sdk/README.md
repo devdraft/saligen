@@ -13,6 +13,15 @@ This directory contains everything needed to generate production-ready SDKs from
 
 ## Quick Start
 
+### 0. Install Dependencies
+
+```bash
+# Install OpenAPI Generator CLI (only needed once)
+npm install
+```
+
+The generator will automatically install dependencies if they're missing.
+
 ### 1. Prepare Your OpenAPI Spec
 
 Replace `openapi.yaml` with your API specification (YAML or JSON):
@@ -310,11 +319,12 @@ cd generated/kotlin
 
 #### OpenAPI Generator Not Found
 ```bash
-# Install globally
-npm install -g @openapitools/openapi-generator-cli
+# Install local dependencies
+cd sdk
+npm install
 
-# Or use npx
-npx @openapitools/openapi-generator-cli generate ...
+# Or if you prefer global installation
+npm install -g @openapitools/openapi-generator-cli
 ```
 
 #### Invalid OpenAPI Spec
