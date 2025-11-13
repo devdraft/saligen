@@ -1,6 +1,6 @@
 {
   "packageName": "devdraft",
-  "packageVersion": "0.1.0",
+  "packageVersion": "0.0.1",
   "enumClassPrefix": true,
   "isGoSubmodule": true,
   "hideGenerationTimestamp": true,

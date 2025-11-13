@@ -428,6 +428,37 @@ fi
 
 echo -e "${GREEN}✓ OpenAPI spec format: .$EXTENSION${NC}"
 
+# Check Java version (OpenAPI Generator requires Java 11+)
+echo -e "${BLUE}Checking Java version...${NC}"
+if ! command -v java &> /dev/null; then
+    echo -e "${RED}✗ Java is not installed${NC}"
+    echo -e "${YELLOW}OpenAPI Generator CLI requires Java 11 or higher${NC}"
+    echo -e "${YELLOW}Please install Java:${NC}"
+    echo -e "  macOS: brew install openjdk@11"
+    echo -e "  Or download from: https://adoptium.net/"
+    exit 1
+fi
+
+JAVA_VERSION=$(java -version 2>&1 | head -n 1 | cut -d'"' -f2 | sed '/^1\./s///' | cut -d'.' -f1)
+if [ -z "$JAVA_VERSION" ]; then
+    # Try alternative parsing for older Java versions
+    JAVA_VERSION=$(java -version 2>&1 | head -n 1 | awk -F '"' '{print $2}' | awk -F '.' '{print $1}')
+fi
+
+if [ -z "$JAVA_VERSION" ] || [ "$JAVA_VERSION" -lt 11 ]; then
+    echo -e "${RED}✗ Java version $JAVA_VERSION is too old${NC}"
+    echo -e "${YELLOW}OpenAPI Generator CLI requires Java 11 or higher${NC}"
+    echo -e "${YELLOW}Current version: $(java -version 2>&1 | head -n 1)${NC}"
+    echo ""
+    echo -e "${YELLOW}To install Java 11+:${NC}"
+    echo -e "  macOS: brew install openjdk@11"
+    echo -e "  Then set JAVA_HOME: export JAVA_HOME=\$(/usr/libexec/java_home -v 11)"
+    echo -e "  Or download from: https://adoptium.net/"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Java version $JAVA_VERSION detected${NC}"
+
 # Check if OpenAPI Generator CLI is available via npm
 echo -e "${BLUE}Checking OpenAPI Generator CLI...${NC}"
 
@@ -447,8 +478,12 @@ else
     echo -e "${GREEN}✓ OpenAPI Generator CLI ready${NC}"
 fi
 
-# Use npx to run openapi-generator-cli from local node_modules
-OPENAPI_GENERATOR_CMD="npx --prefix $SCRIPT_DIR @openapitools/openapi-generator-cli"
+# Function to run openapi-generator-cli
+# This ensures we're in the correct directory with node_modules
+run_openapi_generator() {
+    (cd "$SCRIPT_DIR" && npx @openapitools/openapi-generator-cli "$@")
+}
+
 echo ""
 
 # Function to generate SDK for a language
@@ -518,7 +553,7 @@ generate_sdk() {
     mkdir -p "$output_dir"
     
     # Generate SDK
-    if $OPENAPI_GENERATOR_CMD generate \
+    if run_openapi_generator generate \
         -i "$OPENAPI_PATH" \
         -g "$generator" \
         -o "$output_dir" \

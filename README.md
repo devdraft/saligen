@@ -37,7 +37,7 @@ npx saligen -o swagger.yml -c
 **Option 3: Clone and use locally**
 
 ```bash
-git clone https://github.com/sali-gen/saligen.git
+git clone https://github.com/devdraft/saligen.git
 cd saligen
 ./setup.sh
 ./sdk/generate.sh -o swagger.yml -c
@@ -46,6 +46,11 @@ cd saligen
 ### Prerequisites
 
 - **Node.js 16+** (for OpenAPI Generator CLI)
+- **Java 11+** (required by OpenAPI Generator CLI)
+  - Check version: `java -version`
+  - Install on macOS: `brew install openjdk@11`
+  - Or download from: [Adoptium](https://adoptium.net/)
+  - Set JAVA_HOME if needed: `export JAVA_HOME=$(/usr/libexec/java_home -v 11)`
 - Language-specific tools for building SDKs:
   - Node.js 16+ for TypeScript
   - Python 3.8+ for Python
@@ -56,7 +61,7 @@ cd saligen
   - Ruby 3.0+ for Ruby
   - Java 11+ for Java/Kotlin
 
-**No additional installation needed!** The OpenAPI Generator CLI is included as an npm dependency.
+**Note:** The OpenAPI Generator CLI is included as an npm dependency, but Java 11+ must be installed separately.
 
 ### Installation
 

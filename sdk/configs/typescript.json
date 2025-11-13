@@ -1,6 +1,6 @@
 {
   "npmName": "@devdraft/devdraft",
-  "npmVersion": "0.1.0",
+  "npmVersion": "0.0.1",
   "supportsES6": true,
   "withSeparateModelsAndApi": true,
   "modelPropertyNaming": "camelCase",

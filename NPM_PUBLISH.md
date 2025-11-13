@@ -19,12 +19,12 @@ Edit `package.json` and update:
   "author": "Your Name <your.email@example.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sali-gen/saligen"
+    "url": "https://github.com/devdraft/saligen"
   },
   "bugs": {
-    "url": "https://github.com/sali-gen/saligen/issues"
+    "url": "https://github.com/devdraft/saligen/issues"
   },
-  "homepage": "https://github.com/sali-gen/saligen#readme"
+  "homepage": "https://github.com/devdraft/saligen#readme"
 }
 ```
 
@@ -155,7 +155,7 @@ Excluded (via .gitignore):
 Choose a different name in package.json:
 ```json
 {
-  "name": "@sali-gen/saligen"
+  "name": "@devdraft/saligen"
 }
 ```
 

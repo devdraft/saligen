@@ -1,7 +1,7 @@
 {
   "gemName": "devdraft",
   "moduleName": "Devdraft",
-  "gemVersion": "0.1.0",
+  "gemVersion": "0.0.1",
   "gemAuthor": "Devdraft",
   "gemAuthorEmail": "engineering@devdraft.ai",
   "gemHomepage": "https://github.com/devdraft/devdraft-ruby",
