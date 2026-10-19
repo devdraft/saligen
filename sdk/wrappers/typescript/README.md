@@ -120,12 +120,15 @@ try {
 
 ## Retries
 
-The SDK automatically retries failed requests for the following status codes:
+The SDK automatically retries failed requests in these cases:
+- Network-level failures where no response was received (connection reset, DNS error, timeout)
 - `429` (Too Many Requests)
 - `500` (Internal Server Error)
 - `502` (Bad Gateway)
 - `503` (Service Unavailable)
 - `504` (Gateway Timeout)
+
+Requests cancelled by the caller (via an `AbortSignal`) and request setup errors are never retried.
 
 Retries use exponential backoff with a maximum wait time of 8 seconds. If the server returns a `Retry-After` header, it will be respected.
 

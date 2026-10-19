@@ -156,8 +156,14 @@ export class DevDraftClient {
 
         const status = error.response?.status ?? 0;
         const retryableStatuses = [429, 500, 502, 503, 504];
+
+        // Retry network-level failures (no response received: connection
+        // reset, DNS error, timeout) as well as retryable HTTP statuses.
+        // Never retry caller-initiated cancellations or request setup errors.
+        const isNetworkError =
+          !error.response && !!error.request && !axios.isCancel(error);
         const shouldRetry =
-          retryableStatuses.includes(status) &&
+          (retryableStatuses.includes(status) || isNetworkError) &&
           config.__retryCount < this.opts.maxRetries;
 
         if (!shouldRetry) {
